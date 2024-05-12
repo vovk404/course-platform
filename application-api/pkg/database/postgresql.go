@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/a631807682/zerofield"
@@ -16,6 +17,7 @@ type PostgreSQLConfig struct {
 	Password string
 	Host     string
 	Database string
+	Port     string
 }
 
 // PostgreSQL - represents postgresql service.
@@ -48,9 +50,10 @@ func NewPostgreSQL(cfg PostgreSQLConfig, opts ...Option) (*PostgreSQL, error) {
 	// connect to database
 	var err error
 	dsn := fmt.Sprintf(
-		"user=%s password=%s dbname=%s host=%s",
-		cfg.User, cfg.Password, cfg.Database, cfg.Host,
+		"user=%s password=%s dbname=%s host=%s port=%s",
+		cfg.User, cfg.Password, cfg.Database, cfg.Host, cfg.Port,
 	)
+	log.Println("DSN request: ", dsn)
 	sql.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 		PrepareStmt: true,
 	})

@@ -21,6 +21,7 @@ func Run(cfg *config.Config) {
 		Password: cfg.PostgreSQL.Password,
 		Host:     cfg.PostgreSQL.Host,
 		Database: cfg.PostgreSQL.Database,
+		Port:     cfg.PostgreSQL.Port,
 	})
 	if err != nil {
 		log.Fatal("failed to init postgresql", "err", err)
