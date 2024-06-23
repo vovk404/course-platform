@@ -16,18 +16,11 @@ import (
 func Run(cfg *config.Config) {
 	log := logger.New(cfg.Log.Level)
 
-	sql, err := database.NewPostgreSQL(database.PostgreSQLConfig{
-		User:     cfg.PostgreSQL.User,
-		Password: cfg.PostgreSQL.Password,
-		Host:     cfg.PostgreSQL.Host,
-		Database: cfg.PostgreSQL.Database,
-		Port:     cfg.PostgreSQL.Port,
-	})
-	if err != nil {
-		log.Fatal("failed to init postgresql", "err", err)
-	}
+	// Wait until Postgres started
+	time.Sleep(2 * time.Second)
+	sql := connectToDB(cfg, log)
 
-	err = sql.DB.AutoMigrate(
+	err := sql.DB.AutoMigrate(
 		&entity.User{},
 		&entity.Account{},
 		&entity.AccountDevices{},
@@ -41,7 +34,11 @@ func Run(cfg *config.Config) {
 		"postgreSQL": sql,
 	}
 
-	//services := service2.Services{}
+	//storages := service.Storages{
+	//	UserStorage:    storage.NewUserStorage(sql),
+	//	AccountStorage: storage.NewAccountStorage(sql),
+	//	NodeStorage:    storage.NewNodeStorage(sql),
+	//}
 
 	httpHandler := gin.New()
 
@@ -72,6 +69,7 @@ func Run(cfg *config.Config) {
 		log.Error("app - Run - httpServer.Notify", "err", err)
 	}
 
+	// Shut down server after 30 sec (according to httpserver.ShutdownTimeout(time.Second*30))
 	err = httpServer.Shutdown()
 	if err != nil {
 		log.Error("app - Run - httpServer.Shutdown", "err", err)
@@ -82,5 +80,34 @@ func Run(cfg *config.Config) {
 		if err != nil {
 			log.Error("app - Run - db.Close", "err", err)
 		}
+	}
+}
+
+// Try to connect to Postgress 10 times before throwing an error, postgress starting after the application-api.
+func connectToDB(cfg *config.Config, logger logger.Logger) *database.PostgreSQL {
+	var counts int
+
+	for {
+		connection, err := database.NewPostgreSQL(database.PostgreSQLConfig{
+			User:     cfg.PostgreSQL.User,
+			Password: cfg.PostgreSQL.Password,
+			Host:     cfg.PostgreSQL.Host,
+			Database: cfg.PostgreSQL.Database,
+			Port:     cfg.PostgreSQL.Port,
+		})
+		if err != nil {
+			logger.Error("Postgres is not ready")
+			counts++
+		} else {
+			logger.Info("Connected to Postgres!")
+			return connection
+		}
+
+		if counts > 10 {
+			logger.Fatal(err.Error())
+		}
+		logger.Debug("Backing off for two seconds...")
+		time.Sleep(2 * time.Second)
+		continue
 	}
 }
