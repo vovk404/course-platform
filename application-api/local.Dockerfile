@@ -30,8 +30,8 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o app/api cmd/main.go
+RUN go build -o app/application-api cmd/main.go
 
 EXPOSE 8082
 
-CMD ["app/api"]
+CMD ["app/application-api"]

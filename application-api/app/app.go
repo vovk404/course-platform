@@ -3,8 +3,13 @@ package app
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/vovk404/course-platform/application-api/config"
+	controller "github.com/vovk404/course-platform/application-api/internal/controller/http"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
+	"github.com/vovk404/course-platform/application-api/internal/service"
+	"github.com/vovk404/course-platform/application-api/internal/storage"
+	"github.com/vovk404/course-platform/application-api/pkg/auth"
 	"github.com/vovk404/course-platform/application-api/pkg/database"
+	"github.com/vovk404/course-platform/application-api/pkg/hash"
 	"github.com/vovk404/course-platform/application-api/pkg/httpserver"
 	"github.com/vovk404/course-platform/application-api/pkg/logger"
 	"os"
@@ -30,24 +35,38 @@ func Run(cfg *config.Config) {
 		log.Fatal("automigration failed", "err", err)
 	}
 
+	storages := service.Storages{
+		UserStorage:    storage.NewUserStorage(sql),
+		AccountStorage: storage.NewAccountStorage(sql),
+		NodeStorage:    storage.NewNodeStorage(sql),
+	}
+
 	databases := map[string]database.Database{
 		"postgreSQL": sql,
 	}
 
-	//storages := service.Storages{
-	//	UserStorage:    storage.NewUserStorage(sql),
-	//	AccountStorage: storage.NewAccountStorage(sql),
-	//	NodeStorage:    storage.NewNodeStorage(sql),
-	//}
+	serviceOptions := &service.Options{
+		Storages: &storages,
+		Config:   cfg,
+		Logger:   log,
+		Hash:     hash.NewHash(),
+		Auth:     auth.NewAuth(),
+	}
+
+	services := service.Services{
+		AuthService:    service.NewAuthService(serviceOptions),
+		AccountService: service.NewAccountService(serviceOptions),
+		NodeService:    service.NewNodeService(serviceOptions),
+	}
 
 	httpHandler := gin.New()
 
-	//controller.New(&controller.Options{
-	//	Handler:  httpHandler,
-	//	Services: services,
-	//	Logger:   log,
-	//	Config:   cfg,
-	//})
+	controller.New(&controller.Options{
+		Handler:  httpHandler,
+		Services: services,
+		Logger:   log,
+		Config:   cfg,
+	})
 
 	httpServer := httpserver.New(
 		httpHandler,
