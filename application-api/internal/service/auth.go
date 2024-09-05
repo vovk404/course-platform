@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
 	"github.com/vovk404/course-platform/application-api/pkg/auth"
+	"github.com/vovk404/course-platform/application-api/pkg/errs"
 	"github.com/vovk404/course-platform/application-api/pkg/hash"
 )
 
@@ -83,7 +84,12 @@ func (a authService) SignUp(ctx context.Context, options *SignUpOptions) (*SignU
 		return nil, fmt.Errorf("failed to hash user: %w", err)
 	}
 
-	createdUser, err := a.storages.UserStorage.CreateUser(ctx, &entity.User{Email: options.Email, Password: hashedPassword, Username: options.Username})
+	createdUser, err := a.storages.UserStorage.CreateUser(ctx, &entity.User{
+		Email:    options.Email,
+		Password: hashedPassword,
+		Username: options.Username,
+		Type:     options.Type,
+	})
 	if err != nil {
 		logger.Error("failed to create user: ", err)
 		return nil, fmt.Errorf("failed to create user: %w", err)
@@ -96,7 +102,13 @@ func (a authService) SignUp(ctx context.Context, options *SignUpOptions) (*SignU
 	}
 
 	logger.Info("successfully handled sign up")
-	return &SignUpOutput{Id: createdUser.Id, Username: createdUser.Username, Email: createdUser.Email, AccessToken: accessToken}, nil
+	return &SignUpOutput{
+		Id:          createdUser.Id,
+		Username:    createdUser.Username,
+		Email:       createdUser.Email,
+		Type:        createdUser.Type,
+		AccessToken: accessToken,
+	}, nil
 }
 
 func (a authService) VerifyToken(ctx context.Context, options *VerifyTokenOptions) (*VerifyTokenOutput, error) {
@@ -112,4 +124,12 @@ func (a authService) VerifyToken(ctx context.Context, options *VerifyTokenOption
 
 	logger.Info("successfully handled auth token")
 	return &VerifyTokenOutput{Username: claims.Username, UserId: claims.UserId}, nil
+}
+
+func (s *SignUpOptions) Validate() error {
+	fmt.Println("User type: ", s.Type)
+	if s.Type > 2 || s.Type < 1 {
+		return errs.New("Type must be either 1 or 2, which means student or teacher.", "wrong user type")
+	}
+	return nil
 }

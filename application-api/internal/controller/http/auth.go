@@ -119,6 +119,12 @@ func (a *authRouter) signUp(requestContext *gin.Context) (interface{}, *httpResp
 		logger.Info("failed to parse request body", "err", err)
 		return nil, &httpResponseError{Type: ErrorTypeClient, Message: "invalid request body", Details: err}
 	}
+	err = body.SignUpOptions.Validate()
+	if err != nil {
+		logger.Info("failed to parse request body", "err", err)
+		return nil, &httpResponseError{Type: ErrorTypeClient, Message: "invalid request body", Details: err}
+	}
+
 	logger = logger.With("body", body)
 	logger.Debug("parsed request body")
 

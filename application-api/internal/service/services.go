@@ -52,6 +52,7 @@ type SignUpOptions struct {
 	Username   string
 	Email      string
 	Password   string
+	Type       int
 	MacAddress string
 }
 
@@ -59,6 +60,7 @@ type SignUpOutput struct {
 	Id          string
 	Username    string
 	Email       string
+	Type        int
 	AccessToken string
 }
 
