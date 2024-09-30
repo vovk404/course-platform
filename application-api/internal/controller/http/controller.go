@@ -53,6 +53,7 @@ func New(options *Options) {
 	{
 		setupAuthRoutes(routerOptions)
 		setupAccountRoutes(routerOptions)
+		setupCourseRoutes(routerOptions)
 	}
 }
 

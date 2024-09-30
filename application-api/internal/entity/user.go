@@ -7,3 +7,8 @@ type User struct {
 	Type     int    `json:"type"`
 	Password string `json:"password"`
 }
+
+var UserTypes = map[int]string{
+	1: "student",
+	2: "teacher",
+}

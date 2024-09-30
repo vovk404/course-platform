@@ -39,6 +39,7 @@ func Run(cfg *config.Config) {
 		UserStorage:    storage.NewUserStorage(sql),
 		AccountStorage: storage.NewAccountStorage(sql),
 		NodeStorage:    storage.NewNodeStorage(sql),
+		CourseStorage:  storage.NewCourseStorage(sql),
 	}
 
 	databases := map[string]database.Database{
@@ -57,6 +58,7 @@ func Run(cfg *config.Config) {
 		AuthService:    service.NewAuthService(serviceOptions),
 		AccountService: service.NewAccountService(serviceOptions),
 		NodeService:    service.NewNodeService(serviceOptions),
+		CourseService:  service.NewCourseService(serviceOptions),
 	}
 
 	httpHandler := gin.New()

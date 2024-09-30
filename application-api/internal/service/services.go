@@ -14,6 +14,7 @@ type Services struct {
 	AuthService    AuthService
 	AccountService AccountService
 	NodeService    NodeService
+	CourseService  CourseService
 }
 
 type Options struct {
@@ -124,4 +125,23 @@ type CreateNodeOptions struct {
 
 type CreateNodeOutput struct {
 	Id string
+}
+
+type CourseService interface {
+	// UploadCourse provides logic of creating course for selling.
+	UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error)
+}
+
+type UploadCourseOptions struct {
+	Author         string  `json:"author"`
+	Name           string  `json:"name"`
+	Description    string  `json:"description"`
+	Price          float32 `json:"price"`
+	CourseLanguage string  `json:"courseLanguage"`
+}
+
+type CreateCourseOutput struct {
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+	Author string `json:"author"`
 }

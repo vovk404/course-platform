@@ -9,6 +9,7 @@ type Storages struct {
 	UserStorage    UserStorage
 	AccountStorage AccountStorage
 	NodeStorage    NodeStorage
+	CourseStorage  CourseStorage
 }
 
 type UserStorage interface {
@@ -40,4 +41,15 @@ type GetAccountFilter struct {
 type NodeStorage interface {
 	// CreateNode provides creating new node in system.
 	CreateNode(ctx context.Context, node *entity.Node) (*entity.Node, error)
+}
+
+type CourseStorage interface {
+	GetCourse(ctx context.Context, filter *GetCourseFilter) (*entity.Course, error)
+	// CreateCourse provides creating course in the system.
+	CreateCourse(ctx context.Context, course *entity.Course) (*entity.Course, error)
+}
+
+type GetCourseFilter struct {
+	Name   string
+	Author string
 }
