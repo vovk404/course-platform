@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/vovk404/course-platform/application-api/internal/entity"
 )
 
 type courseService struct {
@@ -41,13 +42,20 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 		return nil, fmt.Errorf("failed to create a course")
 	}
 
+	var insertCourse entity.Course
 	//TODO set teacher id to course
+	insertCourse.Name = options.Name
+	insertCourse.Author = options.Author
+	insertCourse.Description = options.Description
+	insertCourse.Price = options.Price
+	insertCourse.CourseLanguage = options.CourseLanguage
+	insertCourse.TeacherId = options.TeacherId
 
 	//create course
-	createdCourse, err := a.storages.CourseStorage.CreateCourse(ctx, course)
+	createdCourse, err := a.storages.CourseStorage.CreateCourse(ctx, &insertCourse)
 	if err != nil {
-		logger.Error("failed to create new course: %w", err)
-		return nil, fmt.Errorf("failed to create new course: %w", err)
+		logger.Error("failed to create a new course: %w", err)
+		return nil, fmt.Errorf("failed to create a new course: %w", err)
 	}
 	logger = logger.With("createdCourse", createdCourse)
 	logger.Info("successfully created course")

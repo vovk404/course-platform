@@ -135,6 +135,7 @@ type CourseService interface {
 type UploadCourseOptions struct {
 	Author         string  `json:"author"`
 	Name           string  `json:"name"`
+	TeacherId      string  `json:"teacherId"`
 	Description    string  `json:"description"`
 	Price          float32 `json:"price"`
 	CourseLanguage string  `json:"courseLanguage"`

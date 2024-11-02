@@ -20,6 +20,7 @@ func NewCourseStorage(postgresql *database.PostgreSQL) service.CourseStorage {
 }
 
 func (u courseStorage) CreateCourse(ctx context.Context, course *entity.Course) (*entity.Course, error) {
+	//TODO somewhy without pointer it throws an error
 	err := u.DB.WithContext(ctx).Create(course).Error
 	if err != nil {
 		return nil, err

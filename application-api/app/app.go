@@ -27,6 +27,7 @@ func Run(cfg *config.Config) {
 
 	err := sql.DB.AutoMigrate(
 		&entity.User{},
+		&entity.Course{},
 		&entity.Account{},
 		&entity.AccountDevices{},
 		&entity.AccountSettings{},
@@ -34,6 +35,8 @@ func Run(cfg *config.Config) {
 	if err != nil {
 		log.Fatal("automigration failed", "err", err)
 	}
+
+	//TODO add foreign keys on courses.teacher_id
 
 	storages := service.Storages{
 		UserStorage:    storage.NewUserStorage(sql),
