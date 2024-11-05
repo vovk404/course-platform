@@ -22,15 +22,11 @@ func NewCourseService(options *Options) CourseService {
 	}
 }
 
-// TODO - need to test this api, all done except testing.
 func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error) {
 	logger := a.logger.
 		Named("UploadCourse").
 		WithContext(ctx).
 		With("options", options)
-
-	// TODO get user and check his user type,
-	//userId := requestContext.Get("userId")
 
 	course, err := a.storages.CourseStorage.GetCourse(ctx, &GetCourseFilter{Name: options.Name, Author: options.Author})
 	if err != nil {
@@ -39,18 +35,26 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 	}
 	if course != nil {
 		logger.Error("course with such name and author already created: ", course)
-		return nil, fmt.Errorf("failed to create a course")
+		return nil, fmt.Errorf("course with such name and author already created")
+	}
+	//get user
+	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: options.TeacherId})
+	if err != nil || user == nil {
+		logger.Error("can`t find user with this id", err)
+		return nil, fmt.Errorf("can`t find user with this id: %w , error: %w", options.TeacherId, err)
+	}
+	if user.Type != entity.Teacher {
+		return nil, fmt.Errorf("user`s type can`t allow creating a course")
 	}
 
-	var insertCourse entity.Course
-	//TODO set teacher id to course
-	insertCourse.Name = options.Name
-	insertCourse.Author = options.Author
-	insertCourse.Description = options.Description
-	insertCourse.Price = options.Price
-	insertCourse.CourseLanguage = options.CourseLanguage
-	insertCourse.TeacherId = options.TeacherId
-
+	insertCourse := entity.Course{
+		Name:           options.Name,
+		Author:         options.Author,
+		Description:    options.Description,
+		Price:          options.Price,
+		CourseLanguage: options.CourseLanguage,
+		TeacherId:      options.TeacherId,
+	}
 	//create course
 	createdCourse, err := a.storages.CourseStorage.CreateCourse(ctx, &insertCourse)
 	if err != nil {

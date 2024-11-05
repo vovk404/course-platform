@@ -8,7 +8,7 @@ type User struct {
 	Password string `json:"password"`
 }
 
-var UserTypes = map[int]string{
-	1: "student",
-	2: "teacher",
-}
+const (
+	Student = 1
+	Teacher = 2
+)
