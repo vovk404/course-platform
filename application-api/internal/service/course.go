@@ -27,7 +27,6 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 		Named("UploadCourse").
 		WithContext(ctx).
 		With("options", options)
-
 	course, err := a.storages.CourseStorage.GetCourse(ctx, &GetCourseFilter{Name: options.Name, Author: options.Author})
 	if err != nil {
 		logger.Error("failed to get course: ", course)
@@ -38,10 +37,11 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 		return nil, fmt.Errorf("course with such name and author already created")
 	}
 	//get user
-	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: options.TeacherId})
+	userId := ctx.Value("userId").(string)
+	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: userId})
 	if err != nil || user == nil {
 		logger.Error("can`t find user with this id", err)
-		return nil, fmt.Errorf("can`t find user with this id: %w , error: %w", options.TeacherId, err)
+		return nil, fmt.Errorf("can`t find user with this id: %w , error: %w", userId, err)
 	}
 	if user.Type != entity.Teacher {
 		return nil, fmt.Errorf("user`s type can`t allow creating a course")
@@ -53,7 +53,7 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 		Description:    options.Description,
 		Price:          options.Price,
 		CourseLanguage: options.CourseLanguage,
-		TeacherId:      options.TeacherId,
+		TeacherId:      user.Id,
 	}
 	//create course
 	createdCourse, err := a.storages.CourseStorage.CreateCourse(ctx, &insertCourse)
