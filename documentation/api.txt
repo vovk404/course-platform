@@ -1,0 +1,44 @@
+API Documentation
+Authentication APIs
+
+Sign In
+URL: http://localhost:2345/api/v1/auth/sign-in or http://localhost:8082/api/v1/auth/sign-in
+Method: POST
+Request Body:
+{
+    "email": "avok+1@keh.com",
+    "password": "Qwerty123!"
+}
+Description: This endpoint allows users to sign in to the platform using their email and password.
+
+
+Sign Up
+URL: http://localhost:8082/api/v1/auth/sign-up
+Method: POST
+Request Body:
+{
+    "userName": "anvov4",
+    "email": "avok+3@keh.com",
+    "password": "Qwerty123!",
+    "type": 1,
+    "macAddress": "MAC:vovk:test:123"
+}
+Description: This endpoint allows new users to sign up for the platform by providing their username, email, password, type, and MAC address.
+Course APIs
+
+
+Create New Course
+URL: http://localhost:8082/api/v1/course/new
+Method: POST
+Authorization: Bearer Token
+Request Headers:
+Authorization: <token>
+Request Body:
+{
+    "author": "Andriy Vovk",
+    "name": "Golang course 11.0",
+    "description": "Big course from start to middle 11",
+    "price": 14.90,
+    "courseLanguage": "English"
+}
+Description: This endpoint allows authorized users to create a new course by providing details such as author, name, description, price, and course language.
