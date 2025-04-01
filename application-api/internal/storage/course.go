@@ -54,3 +54,22 @@ func (u courseStorage) GetCourse(ctx context.Context, filter *service.GetCourseF
 
 	return &course, nil
 }
+
+func (u courseStorage) GetListByTeacherId(ctx context.Context, teacherId string) ([]*entity.Course, error) {
+	stmt := u.DB.Preload(clause.Associations)
+	var courses []*entity.Course
+
+	stmt = stmt.Where(entity.Course{TeacherId: teacherId})
+
+	err := stmt.
+		WithContext(ctx).Find(&courses).
+		Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return courses, nil
+}

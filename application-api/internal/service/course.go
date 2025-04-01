@@ -69,3 +69,16 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 		Author: createdCourse.Author,
 	}, nil
 }
+
+func (a courseService) GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error) {
+	logger := a.logger.
+		Named("GetTeachersList").
+		WithContext(ctx).
+		With("teacherId", teacherId)
+	courses, err := a.storages.CourseStorage.GetListByTeacherId(ctx, teacherId)
+	if err != nil {
+		logger.Error("failed to get courses by teacherId:", err)
+	}
+
+	return courses, nil
+}

@@ -130,6 +130,7 @@ type CreateNodeOutput struct {
 type CourseService interface {
 	// UploadCourse provides logic of creating course for selling.
 	UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error)
+	GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error)
 }
 
 type UploadCourseOptions struct {
@@ -144,4 +145,8 @@ type CreateCourseOutput struct {
 	Id     string `json:"id"`
 	Name   string `json:"name"`
 	Author string `json:"author"`
+}
+
+type CreateGetTeachersListOutput struct {
+	Courses []*entity.Course `json:"courses"`
 }

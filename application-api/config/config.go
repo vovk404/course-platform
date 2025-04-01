@@ -19,12 +19,12 @@ type (
 
 	// App - represent application configuration.
 	App struct {
-		BaseURL string `env:"BASE_URL"    env-default:"http://localhost:8082"`
+		BaseURL string `env:"BASE_URL"    env-default:"http://localhost:8083"`
 	}
 
 	// HTTP - represents http configuration.
 	HTTP struct {
-		Port string `env:"HTTP_PORT" env-default:"8082"`
+		Port string `env:"HTTP_PORT" env-default:"8083"`
 	}
 
 	// Log - represents logger configuration.

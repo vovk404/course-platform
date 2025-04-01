@@ -18,6 +18,10 @@ type uploadCourseResponseBody struct {
 	*service.CreateCourseOutput
 } // @name createAccountResponseBody
 
+type getTeachersListResponseBody struct {
+	*service.CreateGetTeachersListOutput
+}
+
 type uploadCourseResponseError struct {
 	Message string `json:"message"`
 	Code    string `json:"code" enums:"user_not_found"`
@@ -42,6 +46,7 @@ func setupCourseRoutes(options RouterOptions) {
 	routerGroup := options.Handler.Group("/course")
 	{
 		routerGroup.POST("/new", authMiddleware(options), wrapHandler(options, router.uploadCourse))
+		routerGroup.GET("/teachers_list", authMiddleware(options), wrapHandler(options, router.getListByTeacherId))
 	}
 }
 
@@ -70,4 +75,23 @@ func (a *courseRouter) uploadCourse(requestContext *gin.Context) (interface{}, *
 
 	logger.Info("course created successfully")
 	return &uploadCourseResponseBody{uploadedCourse}, nil
+}
+
+func (a *courseRouter) getListByTeacherId(requestContext *gin.Context) (interface{}, *httpResponseError) {
+	logger := a.logger.Named("getListByTeacherId").WithContext(requestContext)
+	userId, ok := requestContext.Value("userId").(string)
+	if !ok || userId == "" {
+		logger.Error("userId is required and must be a string")
+		return nil, &httpResponseError{Type: ErrorTypeClient, Message: "userId is required and must be a string"}
+	}
+
+	list, err := a.services.CourseService.GetTeachersList(requestContext, userId)
+	if list == nil || err != nil {
+		logger.Error("failed to get course list", "err", err)
+	}
+
+	logger.Info("teachers courses served successfully")
+	return &getTeachersListResponseBody{
+		&service.CreateGetTeachersListOutput{list},
+	}, nil
 }

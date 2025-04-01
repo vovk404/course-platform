@@ -47,6 +47,7 @@ type CourseStorage interface {
 	GetCourse(ctx context.Context, filter *GetCourseFilter) (*entity.Course, error)
 	// CreateCourse provides creating course in the system.
 	CreateCourse(ctx context.Context, course *entity.Course) (*entity.Course, error)
+	GetListByTeacherId(ctx context.Context, teacherId string) ([]*entity.Course, error)
 }
 
 type GetCourseFilter struct {

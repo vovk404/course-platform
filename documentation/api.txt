@@ -42,3 +42,11 @@ Request Body:
     "courseLanguage": "English"
 }
 Description: This endpoint allows authorized users to create a new course by providing details such as author, name, description, price, and course language.
+
+Get Teachers List
+URL: http://localhost:8082/api/v1/course/teachers_list
+Method: GET
+Authorization: Bearer Token
+Request Headers:
+Authorization: <token>
+Description: This endpoint allows authorized teachers to get their list of courses.
