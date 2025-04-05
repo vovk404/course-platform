@@ -71,13 +71,17 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 }
 
 func (a courseService) GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error) {
-	logger := a.logger.
-		Named("GetTeachersList").
-		WithContext(ctx).
-		With("teacherId", teacherId)
+	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: teacherId})
+	if err != nil || user == nil {
+		return nil, fmt.Errorf("can`t find user with this id: %w , error: %w", teacherId, err)
+	}
+	if user.Type != entity.Teacher {
+		return nil, fmt.Errorf("user`s type can`t allow getting a course list")
+	}
+
 	courses, err := a.storages.CourseStorage.GetListByTeacherId(ctx, teacherId)
 	if err != nil {
-		logger.Error("failed to get courses by teacherId:", err)
+		return nil, fmt.Errorf("failed to get courses by teacherId: %w", err)
 	}
 
 	return courses, nil
