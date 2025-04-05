@@ -57,7 +57,7 @@ func (a *courseRouter) uploadCourse(requestContext *gin.Context) (interface{}, *
 	err := requestContext.ShouldBindJSON(&body)
 	if err != nil {
 		logger.Info("failed to parse request body", "err", err)
-		return nil, &httpResponseError{Type: ErrorTypeClient, Message: "invalid request body", Details: err}
+		return nil, &httpResponseError{Type: ErrorTypeClient, Message: "invalid request body", Details: err.Error()}
 	}
 	logger = logger.With("body", body)
 	logger.Debug("parsed request body")
@@ -69,7 +69,7 @@ func (a *courseRouter) uploadCourse(requestContext *gin.Context) (interface{}, *
 			return nil, uploadCourseResponseError{Message: err.Error(), Code: errs.GetCode(err)}.Error()
 		}
 		logger.Error("failed to create course", "err", err)
-		return nil, &httpResponseError{Type: ErrorTypeServer, Message: "failed to create course", Details: err}
+		return nil, &httpResponseError{Type: ErrorTypeServer, Message: "failed to create course", Details: err.Error()}
 	}
 	logger = logger.With("uploadedCourse", uploadedCourse)
 
@@ -88,6 +88,11 @@ func (a *courseRouter) getListByTeacherId(requestContext *gin.Context) (interfac
 	list, err := a.services.CourseService.GetTeachersList(requestContext, userId)
 	if list == nil || err != nil {
 		logger.Error("failed to get course list", "err", err)
+		return nil, &httpResponseError{
+			Type:    ErrorTypeClient,
+			Message: "failed to get course list",
+			Details: err.Error(),
+		}
 	}
 
 	logger.Info("teachers courses served successfully")
