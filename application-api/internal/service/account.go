@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
+	"github.com/vovk404/course-platform/application-api/internal/storage"
 )
 
 type accountService struct {
@@ -28,7 +29,7 @@ func (a accountService) CreateAccount(ctx context.Context, options *CreateAccoun
 		WithContext(ctx).
 		With("options", options)
 
-	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: options.UserId})
+	user, err := a.storages.UserStorage.GetUser(ctx, &storage.GetUserFilter{UserId: options.UserId})
 	if err != nil {
 		logger.Error("failed to get user: ", err)
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -72,7 +73,7 @@ func (a accountService) GetAccount(ctx context.Context, options *GetAccountOptio
 		WithContext(ctx).
 		With("options", options)
 
-	account, err := a.storages.AccountStorage.GetAccount(ctx, &GetAccountFilter{AccountId: options.AccountId, UserId: options.UserId})
+	account, err := a.storages.AccountStorage.GetAccount(ctx, &storage.GetAccountFilter{AccountId: options.AccountId, UserId: options.UserId})
 	if err != nil {
 		logger.Error("failed to get account: ", err)
 		return nil, fmt.Errorf("failed to get account: %w", err)

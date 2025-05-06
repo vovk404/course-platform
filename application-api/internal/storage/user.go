@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
-	"github.com/vovk404/course-platform/application-api/internal/service"
 	"github.com/vovk404/course-platform/application-api/pkg/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -13,13 +12,13 @@ type userStorage struct {
 	*database.PostgreSQL
 }
 
-var _ service.UserStorage = (*userStorage)(nil)
+var _ UserStorage = (*userStorage)(nil)
 
-func NewUserStorage(postgresql *database.PostgreSQL) service.UserStorage {
+func NewUserStorage(postgresql *database.PostgreSQL) UserStorage {
 	return &userStorage{postgresql}
 }
 
-func (u userStorage) CreateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
+func (u *userStorage) CreateUser(ctx context.Context, user *entity.User) (*entity.User, error) {
 	err := u.DB.WithContext(ctx).Create(user).Error
 	if err != nil {
 		return nil, err
@@ -28,7 +27,7 @@ func (u userStorage) CreateUser(ctx context.Context, user *entity.User) (*entity
 	return user, nil
 }
 
-func (u userStorage) GetUser(ctx context.Context, filter *service.GetUserFilter) (*entity.User, error) {
+func (u *userStorage) GetUser(ctx context.Context, filter *GetUserFilter) (*entity.User, error) {
 	stmt := u.DB.Preload(clause.Associations)
 
 	if filter.Email != "" {

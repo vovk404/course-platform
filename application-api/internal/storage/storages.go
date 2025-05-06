@@ -1,4 +1,4 @@
-package service
+package storage
 
 import (
 	"context"
@@ -48,6 +48,7 @@ type CourseStorage interface {
 	// CreateCourse provides creating course in the system.
 	CreateCourse(ctx context.Context, course *entity.Course) (*entity.Course, error)
 	GetListByTeacherId(ctx context.Context, teacherId string) ([]*entity.Course, error)
+	GetList() ([]*entity.Course, error)
 }
 
 type GetCourseFilter struct {

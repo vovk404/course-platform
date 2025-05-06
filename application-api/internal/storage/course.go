@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
-	"github.com/vovk404/course-platform/application-api/internal/service"
 	"github.com/vovk404/course-platform/application-api/pkg/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -13,13 +12,13 @@ type courseStorage struct {
 	*database.PostgreSQL
 }
 
-var _ service.CourseStorage = (*courseStorage)(nil)
+var _ CourseStorage = (*courseStorage)(nil)
 
-func NewCourseStorage(postgresql *database.PostgreSQL) service.CourseStorage {
+func NewCourseStorage(postgresql *database.PostgreSQL) CourseStorage {
 	return &courseStorage{postgresql}
 }
 
-func (u courseStorage) CreateCourse(ctx context.Context, course *entity.Course) (*entity.Course, error) {
+func (u *courseStorage) CreateCourse(ctx context.Context, course *entity.Course) (*entity.Course, error) {
 	//TODO somewhy without pointer it throws an error
 	err := u.DB.WithContext(ctx).Create(course).Error
 	if err != nil {
@@ -29,7 +28,7 @@ func (u courseStorage) CreateCourse(ctx context.Context, course *entity.Course) 
 	return course, nil
 }
 
-func (u courseStorage) GetCourse(ctx context.Context, filter *service.GetCourseFilter) (*entity.Course, error) {
+func (u *courseStorage) GetCourse(ctx context.Context, filter *GetCourseFilter) (*entity.Course, error) {
 	stmt := u.DB.Preload(clause.Associations)
 
 	if filter.Name != "" {
@@ -55,7 +54,7 @@ func (u courseStorage) GetCourse(ctx context.Context, filter *service.GetCourseF
 	return &course, nil
 }
 
-func (u courseStorage) GetListByTeacherId(ctx context.Context, teacherId string) ([]*entity.Course, error) {
+func (u *courseStorage) GetListByTeacherId(ctx context.Context, teacherId string) ([]*entity.Course, error) {
 	stmt := u.DB.Preload(clause.Associations)
 	var courses []*entity.Course
 
@@ -64,6 +63,24 @@ func (u courseStorage) GetListByTeacherId(ctx context.Context, teacherId string)
 	err := stmt.
 		WithContext(ctx).Find(&courses).
 		Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return courses, nil
+}
+
+func (u *courseStorage) GetList() ([]*entity.Course, error) {
+	stmt := u.DB.Preload(clause.Associations)
+	var courses []*entity.Course
+
+	stmt = stmt.Where(entity.Course{})
+
+	err := stmt.Find(&courses).Error
+
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

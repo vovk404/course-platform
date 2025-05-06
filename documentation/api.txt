@@ -50,3 +50,9 @@ Authorization: Bearer Token
 Request Headers:
 Authorization: <token>
 Description: This endpoint allows authorized teachers to get their list of courses.
+
+GET Courses List
+URL: http://localhost:8082/api/v1/course/list
+Method: GET
+Authorization: No Auth
+Description: This endpoint allows to get all available courses open to buy.

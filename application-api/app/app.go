@@ -38,7 +38,7 @@ func Run(cfg *config.Config) {
 
 	//TODO add foreign keys on courses.teacher_id
 
-	storages := service.Storages{
+	storages := storage.Storages{
 		UserStorage:    storage.NewUserStorage(sql),
 		AccountStorage: storage.NewAccountStorage(sql),
 		NodeStorage:    storage.NewNodeStorage(sql),

@@ -3,7 +3,6 @@ package storage
 import (
 	"context"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
-	"github.com/vovk404/course-platform/application-api/internal/service"
 	"github.com/vovk404/course-platform/application-api/pkg/database"
 )
 
@@ -11,9 +10,9 @@ type nodeStorage struct {
 	*database.PostgreSQL
 }
 
-var _ service.NodeStorage = (*nodeStorage)(nil)
+var _ NodeStorage = (*nodeStorage)(nil)
 
-func NewNodeStorage(postgresql *database.PostgreSQL) service.NodeStorage {
+func NewNodeStorage(postgresql *database.PostgreSQL) NodeStorage {
 	return &nodeStorage{postgresql}
 }
 

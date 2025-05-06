@@ -18,8 +18,8 @@ type uploadCourseResponseBody struct {
 	*service.CreateCourseOutput
 } // @name createAccountResponseBody
 
-type getTeachersListResponseBody struct {
-	*service.CreateGetTeachersListOutput
+type getListResponseBody struct {
+	*service.CreateGetListOutput
 }
 
 type uploadCourseResponseError struct {
@@ -47,9 +47,11 @@ func setupCourseRoutes(options RouterOptions) {
 	{
 		routerGroup.POST("/new", authMiddleware(options), wrapHandler(options, router.uploadCourse))
 		routerGroup.GET("/teachers_list", authMiddleware(options), wrapHandler(options, router.getListByTeacherId))
+		routerGroup.GET("/list", wrapHandler(options, router.getList))
 	}
 }
 
+// upload course, only for teacher type of the user
 func (a *courseRouter) uploadCourse(requestContext *gin.Context) (interface{}, *httpResponseError) {
 	logger := a.logger.Named("uploadCourse").WithContext(requestContext)
 
@@ -77,6 +79,7 @@ func (a *courseRouter) uploadCourse(requestContext *gin.Context) (interface{}, *
 	return &uploadCourseResponseBody{uploadedCourse}, nil
 }
 
+// Get list of courses created by particular teacher.
 func (a *courseRouter) getListByTeacherId(requestContext *gin.Context) (interface{}, *httpResponseError) {
 	logger := a.logger.Named("getListByTeacherId").WithContext(requestContext)
 	userId, ok := requestContext.Value("userId").(string)
@@ -87,7 +90,7 @@ func (a *courseRouter) getListByTeacherId(requestContext *gin.Context) (interfac
 
 	list, err := a.services.CourseService.GetTeachersList(requestContext, userId)
 	if list == nil || err != nil {
-		logger.Error("failed to get course list", "err", err)
+		logger.Error("failed to get teachers course list", "err", err)
 		return nil, &httpResponseError{
 			Type:    ErrorTypeClient,
 			Message: "failed to get course list",
@@ -96,7 +99,27 @@ func (a *courseRouter) getListByTeacherId(requestContext *gin.Context) (interfac
 	}
 
 	logger.Info("teachers courses served successfully")
-	return &getTeachersListResponseBody{
-		&service.CreateGetTeachersListOutput{list},
+	return &getListResponseBody{
+		&service.CreateGetListOutput{list},
+	}, nil
+}
+
+// Get public course list.
+func (a *courseRouter) getList(requestContext *gin.Context) (interface{}, *httpResponseError) {
+	logger := a.logger.Named("getList")
+
+	list, err := a.services.CourseService.GetList()
+	if list == nil || err != nil {
+		logger.Error("failed to get course list", "err", err)
+		return nil, &httpResponseError{
+			Type:    ErrorTypeClient,
+			Message: "failed to get course list",
+			Details: err.Error(),
+		}
+	}
+
+	logger.Info("Courses served successfully")
+	return &getListResponseBody{
+		&service.CreateGetListOutput{list},
 	}, nil
 }

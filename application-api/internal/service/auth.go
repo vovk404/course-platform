@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
+	"github.com/vovk404/course-platform/application-api/internal/storage"
 	"github.com/vovk404/course-platform/application-api/pkg/auth"
 	"github.com/vovk404/course-platform/application-api/pkg/errs"
 	"github.com/vovk404/course-platform/application-api/pkg/hash"
@@ -29,13 +30,13 @@ func NewAuthService(options *Options) AuthService {
 	}
 }
 
-func (a authService) SignIn(ctx context.Context, options *SignInOptions) (*SignInOutput, error) {
+func (a *authService) SignIn(ctx context.Context, options *SignInOptions) (*SignInOutput, error) {
 	logger := a.logger.
 		Named("SignIn").
 		WithContext(ctx).
 		With("options", options)
 
-	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{Email: options.Email})
+	user, err := a.storages.UserStorage.GetUser(ctx, &storage.GetUserFilter{Email: options.Email})
 	if err != nil {
 		logger.Error("failed to get user: ", err)
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -62,13 +63,13 @@ func (a authService) SignIn(ctx context.Context, options *SignInOptions) (*SignI
 	return &SignInOutput{AccessToken: accessToken}, nil
 }
 
-func (a authService) SignUp(ctx context.Context, options *SignUpOptions) (*SignUpOutput, error) {
+func (a *authService) SignUp(ctx context.Context, options *SignUpOptions) (*SignUpOutput, error) {
 	logger := a.logger.
 		Named("SignUp").
 		WithContext(ctx).
 		With("options", options)
 
-	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{Email: options.Email})
+	user, err := a.storages.UserStorage.GetUser(ctx, &storage.GetUserFilter{Email: options.Email})
 	if err != nil {
 		logger.Error("failed to get user: ", err)
 		return nil, fmt.Errorf("failed to get user: %w", err)
@@ -111,7 +112,7 @@ func (a authService) SignUp(ctx context.Context, options *SignUpOptions) (*SignU
 	}, nil
 }
 
-func (a authService) VerifyToken(ctx context.Context, options *VerifyTokenOptions) (*VerifyTokenOutput, error) {
+func (a *authService) VerifyToken(ctx context.Context, options *VerifyTokenOptions) (*VerifyTokenOutput, error) {
 	logger := a.logger.
 		Named("VerifyToken").
 		WithContext(ctx)

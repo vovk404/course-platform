@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/vovk404/course-platform/application-api/config"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
+	"github.com/vovk404/course-platform/application-api/internal/storage"
 	"github.com/vovk404/course-platform/application-api/pkg/auth"
 	"github.com/vovk404/course-platform/application-api/pkg/errs"
 	"github.com/vovk404/course-platform/application-api/pkg/hash"
@@ -18,7 +19,7 @@ type Services struct {
 }
 
 type Options struct {
-	Storages *Storages
+	Storages *storage.Storages
 	Config   *config.Config
 	Logger   logger.Logger
 	Hash     hash.Hash
@@ -26,7 +27,7 @@ type Options struct {
 }
 
 type serviceContext struct {
-	storages *Storages
+	storages *storage.Storages
 	config   *config.Config
 	logger   logger.Logger
 }
@@ -131,6 +132,7 @@ type CourseService interface {
 	// UploadCourse provides logic of creating course for selling.
 	UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error)
 	GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error)
+	GetList() ([]*entity.Course, error)
 }
 
 type UploadCourseOptions struct {
@@ -147,6 +149,6 @@ type CreateCourseOutput struct {
 	Author string `json:"author"`
 }
 
-type CreateGetTeachersListOutput struct {
+type CreateGetListOutput struct {
 	Courses []*entity.Course `json:"courses"`
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/a631807682/zerofield"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
-	"github.com/vovk404/course-platform/application-api/internal/service"
 	"github.com/vovk404/course-platform/application-api/pkg/database"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -14,9 +13,9 @@ type accountStorage struct {
 	*database.PostgreSQL
 }
 
-var _ service.AccountStorage = (*accountStorage)(nil)
+var _ AccountStorage = (*accountStorage)(nil)
 
-func NewAccountStorage(postgresql *database.PostgreSQL) service.AccountStorage {
+func NewAccountStorage(postgresql *database.PostgreSQL) AccountStorage {
 	return &accountStorage{postgresql}
 }
 
@@ -29,7 +28,7 @@ func (u *accountStorage) CreateAccount(ctx context.Context, account *entity.Acco
 	return account, nil
 }
 
-func (u *accountStorage) GetAccount(ctx context.Context, filter *service.GetAccountFilter) (*entity.Account, error) {
+func (u *accountStorage) GetAccount(ctx context.Context, filter *GetAccountFilter) (*entity.Account, error) {
 	stmt := u.DB.Preload(clause.Associations)
 
 	if filter.AccountId != "" {

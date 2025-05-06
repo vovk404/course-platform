@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/vovk404/course-platform/application-api/internal/entity"
+	"github.com/vovk404/course-platform/application-api/internal/storage"
 )
 
 type courseService struct {
@@ -22,12 +23,12 @@ func NewCourseService(options *Options) CourseService {
 	}
 }
 
-func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error) {
+func (a *courseService) UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error) {
 	logger := a.logger.
 		Named("UploadCourse").
 		WithContext(ctx).
 		With("options", options)
-	course, err := a.storages.CourseStorage.GetCourse(ctx, &GetCourseFilter{Name: options.Name, Author: options.Author})
+	course, err := a.storages.CourseStorage.GetCourse(ctx, &storage.GetCourseFilter{Name: options.Name, Author: options.Author})
 	if err != nil {
 		logger.Error("failed to get course: ", course)
 		return nil, fmt.Errorf("failed to get course: %w", err)
@@ -38,7 +39,7 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 	}
 	//get user
 	userId := ctx.Value("userId").(string)
-	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: userId})
+	user, err := a.storages.UserStorage.GetUser(ctx, &storage.GetUserFilter{UserId: userId})
 	if err != nil || user == nil {
 		logger.Error("can`t find user with this id", err)
 		return nil, fmt.Errorf("can`t find user with this id: %w , error: %w", userId, err)
@@ -70,8 +71,8 @@ func (a courseService) UploadCourse(ctx context.Context, options *UploadCourseOp
 	}, nil
 }
 
-func (a courseService) GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error) {
-	user, err := a.storages.UserStorage.GetUser(ctx, &GetUserFilter{UserId: teacherId})
+func (a *courseService) GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error) {
+	user, err := a.storages.UserStorage.GetUser(ctx, &storage.GetUserFilter{UserId: teacherId})
 	if err != nil || user == nil {
 		return nil, fmt.Errorf("can`t find user with this id: %w , error: %w", teacherId, err)
 	}
@@ -80,6 +81,15 @@ func (a courseService) GetTeachersList(ctx context.Context, teacherId string) ([
 	}
 
 	courses, err := a.storages.CourseStorage.GetListByTeacherId(ctx, teacherId)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get courses by teacherId: %w", err)
+	}
+
+	return courses, nil
+}
+
+func (a *courseService) GetList() ([]*entity.Course, error) {
+	courses, err := a.storages.CourseStorage.GetList()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get courses by teacherId: %w", err)
 	}
