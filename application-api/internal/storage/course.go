@@ -39,6 +39,10 @@ func (u *courseStorage) GetCourse(ctx context.Context, filter *GetCourseFilter) 
 		stmt = stmt.Where(entity.Course{Author: filter.Author})
 	}
 
+	if filter.Id != "" {
+		stmt = stmt.Where(entity.Course{Id: filter.Id})
+	}
+
 	var course entity.Course
 	err := stmt.
 		WithContext(ctx).

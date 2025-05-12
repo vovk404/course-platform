@@ -71,6 +71,14 @@ func (a *courseService) UploadCourse(ctx context.Context, options *UploadCourseO
 	}, nil
 }
 
+func (a *courseService) GetCourseById(ctx context.Context, id string) (*entity.Course, error) {
+	course, err := a.storages.CourseStorage.GetCourse(ctx, &storage.GetCourseFilter{Id: id})
+	if err != nil || course == nil {
+		return nil, fmt.Errorf("failed to get course: %w", err)
+	}
+	return course, nil
+}
+
 func (a *courseService) GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error) {
 	user, err := a.storages.UserStorage.GetUser(ctx, &storage.GetUserFilter{UserId: teacherId})
 	if err != nil || user == nil {

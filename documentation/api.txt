@@ -56,3 +56,9 @@ URL: http://localhost:8082/api/v1/course/list
 Method: GET
 Authorization: No Auth
 Description: This endpoint allows to get all available courses open to buy.
+
+Get course by id
+URL: http://localhost:8083/api/v1/course/94753d3e-0383-4bf2-8771-ba9ce566558b
+Method: GET
+Authorization: No Auth
+Description: This endpoint allows to get a particular course by its uuid.

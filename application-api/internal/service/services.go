@@ -133,6 +133,7 @@ type CourseService interface {
 	UploadCourse(ctx context.Context, options *UploadCourseOptions) (*CreateCourseOutput, error)
 	GetTeachersList(ctx context.Context, teacherId string) ([]*entity.Course, error)
 	GetList() ([]*entity.Course, error)
+	GetCourseById(ctx context.Context, id string) (*entity.Course, error)
 }
 
 type UploadCourseOptions struct {

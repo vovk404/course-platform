@@ -54,4 +54,5 @@ type CourseStorage interface {
 type GetCourseFilter struct {
 	Name   string
 	Author string
+	Id     string
 }

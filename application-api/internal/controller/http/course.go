@@ -2,6 +2,8 @@ package http
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/vovk404/course-platform/application-api/internal/entity"
 	"github.com/vovk404/course-platform/application-api/internal/service"
 	"github.com/vovk404/course-platform/application-api/pkg/errs"
 )
@@ -20,6 +22,10 @@ type uploadCourseResponseBody struct {
 
 type getListResponseBody struct {
 	*service.CreateGetListOutput
+}
+
+type getCourseResponseBody struct {
+	*entity.Course
 }
 
 type uploadCourseResponseError struct {
@@ -48,6 +54,7 @@ func setupCourseRoutes(options RouterOptions) {
 		routerGroup.POST("/new", authMiddleware(options), wrapHandler(options, router.uploadCourse))
 		routerGroup.GET("/teachers_list", authMiddleware(options), wrapHandler(options, router.getListByTeacherId))
 		routerGroup.GET("/list", wrapHandler(options, router.getList))
+		routerGroup.GET("/:id", wrapHandler(options, router.getCourseById))
 	}
 }
 
@@ -121,5 +128,28 @@ func (a *courseRouter) getList(requestContext *gin.Context) (interface{}, *httpR
 	logger.Info("Courses served successfully")
 	return &getListResponseBody{
 		&service.CreateGetListOutput{list},
+	}, nil
+}
+
+func (a *courseRouter) getCourseById(requestContext *gin.Context) (interface{}, *httpResponseError) {
+	logger := a.logger.Named("getCourseById").WithContext(requestContext)
+	courseId := requestContext.Param("id")
+	if _, ok := uuid.Parse(courseId); ok != nil {
+		logger.Info("invalid course id parameter", "param", courseId)
+		return nil, &httpResponseError{Type: ErrorTypeClient, Message: "invalid course id parameter"}
+	}
+	course, err := a.services.CourseService.GetCourseById(requestContext, courseId)
+
+	if course == nil || err != nil {
+		logger.Error("failed to get the course", "err", err)
+		return nil, &httpResponseError{
+			Type:    ErrorTypeClient,
+			Message: "failed to get the course",
+			Details: err.Error(),
+		}
+	}
+	logger.Info("Course served successfully")
+	return &getCourseResponseBody{
+		course,
 	}, nil
 }
